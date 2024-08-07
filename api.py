@@ -19,7 +19,7 @@ def search():
     vs =  WatchSeriesExtractor()
     query = request.args.get('query')
     results = vs.fetch_search_results(query)
-    return jsonify({"results": results})
+    return jsonify(results)
 
 @app.route('/WATCHSERIES/Trending', methods=['GET'])
 def get_trending():

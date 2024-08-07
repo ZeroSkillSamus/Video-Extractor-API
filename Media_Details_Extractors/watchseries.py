@@ -98,7 +98,7 @@ class WatchSeriesExtractor:
             "trending_tv": self.fetch_trending_info(trending_media[1])
         }
 
-    def fetch_search_results(self,query: str) -> List:
+    def fetch_search_results(self,query: str) -> Dict:
         url = f"https://{self.BASE_URL}/filter?keyword={query}"
         req = self.scraper.get(url)
 
@@ -107,8 +107,11 @@ class WatchSeriesExtractor:
 
         soup = BeautifulSoup(req.content,"html.parser")
         results = soup.find('div',class_="item-lg").find_all('div',class_="item")
-
-        return self.extract_info(results)
+        results = self.extract_info(results)
+        return {
+            "total_pages": 0,
+            "results": results
+        }
 
     def fetch_season_episode_list(self,data_id: str) -> Dict:
         # Get Episode List
