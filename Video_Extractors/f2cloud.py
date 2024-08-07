@@ -1,7 +1,11 @@
 import requests
 import re
 import json
-from urllib.parse import urlparse
+import cloudscraper
+
+from urllib.parse import urlparse, quote
+from Media_Details_Extractors.watchseries import general_dec, general_enc
+from utils import VidSrcError
 
 class F2Cloud:
     @staticmethod
@@ -23,7 +27,7 @@ class F2Cloud:
 
         h = self.h_enc(embed_id)
 
-        mediainfo_url = f"https://{url.hostname}/mediainfo/{self.embed_enc(embed_id)}?{url.query}&ads=0&h={urllib.parse.quote(h)}"
+        mediainfo_url = f"https://{url.hostname}/mediainfo/{self.embed_enc(embed_id)}?{url.query}&ads=0&h={quote(h)}"
         print(f"New URL {mediainfo_url}")
         req = scraper.get(mediainfo_url)
 
