@@ -4,3 +4,6 @@
 
 # Pycache
 __pycache__
+
+# Environement Variables
+.env
