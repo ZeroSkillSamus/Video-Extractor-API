@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote
 from typing import Optional, Dict, List
 
-from utils import VidSrcError
+from utils import VidSrcError, general_dec, general_enc
 from Video_Extractors.f2cloud import F2Cloud
 
 def get_vidplay_subtitles(url_data: str) -> Dict:
@@ -29,44 +29,6 @@ def get_vidplay_subtitles(url_data: str) -> Dict:
             return json_output
 
         return []
-
-def rc4(key, inp):
-    # Initialize the state array and variables
-    arr = list(range(256))
-    counter = 0
-    i = 0
-    decrypted = ''
-
-    # Key Scheduling Algorithm (KSA)
-    key_length = len(key)
-    for i in range(256):
-        counter = (counter + arr[i] + ord(key[i % key_length])) % 256
-        arr[i], arr[counter] = arr[counter], arr[i]
-
-    # Pseudo-Random Generation Algorithm (PRGA)
-    i = 0
-    counter = 0
-    for char in inp:
-        i = (i + 1) % 256
-        counter = (counter + arr[i]) % 256
-        arr[i], arr[counter] = arr[counter], arr[i]
-        decrypted += chr(ord(char) ^ arr[(arr[i] + arr[counter]) % 256])
-
-    return decrypted
-
-def general_enc(key, inp):
-        inp = quote(inp)
-        e = rc4(key, inp)
-        out = base64.b64encode(e.encode("latin-1")).decode()
-        out = out.replace('/', '_').replace('+', '-')
-        return out
-
-def general_dec(key, inp):
-    inp = inp.replace('_', '/').replace('-', '+')
-    i = str(base64.b64decode(inp),"latin-1")
-    e = rc4(key,i)
-    e = urllib.parse.unquote(e)
-    return e
 
 class WatchSeriesExtractor:
     BASE_URL = "watchseriesx.to"
@@ -109,7 +71,7 @@ class WatchSeriesExtractor:
 
         return json_array
 
-    def fetch_trending_info(self,result_set):
+    def fetch_trending_info(self,result_set) -> List:
         return self.extract_info(result_set.find('div',class_="swiper-wrapper item-lg").find_all('div',class_="swiper-slide item"))
 
     def return_trending_json(self) -> Dict:
@@ -175,7 +137,7 @@ class WatchSeriesExtractor:
 
         return season_episodes
 
-    def fetch_media_details(self,media_id: str):
+    def fetch_media_details(self,media_id: str) -> Dict:
         genres = []
         url = f"https://{self.BASE_URL}{media_id}"
         req = self.scraper.get(url)
@@ -234,7 +196,7 @@ class WatchSeriesExtractor:
             "recommendations": recommendations
         }
 
-    def fetch_episode(self,data_id):
+    def fetch_episode(self,data_id) -> List:
         # print(f"asdasdasd {data_id}")
         url = f"https://{self.BASE_URL}/ajax/server/list/{data_id}?vrf={urllib.parse.unquote(self.enc(data_id))}"
         req = self.scraper.get(url)
@@ -266,7 +228,7 @@ class WatchSeriesExtractor:
 
         if not data_id:
             print("[VidSrcExtractor] Could not fetch data-id, this could be due to an invalid imdb/tmdb code...")
-            return None, None, None
+            return []
 
         encoded_data_id = self.enc(data_id)
         url = f"https://{self.BASE_URL}/ajax/episode/list/{data_id}?vrf={urllib.parse.unquote(encoded_data_id)}"

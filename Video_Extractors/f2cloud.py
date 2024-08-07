@@ -4,8 +4,7 @@ import json
 import cloudscraper
 
 from urllib.parse import urlparse, quote
-from Media_Details_Extractors.watchseries import general_dec, general_enc
-from utils import VidSrcError
+from utils import VidSrcError, general_dec, general_enc
 
 class F2Cloud:
     @staticmethod
