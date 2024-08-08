@@ -136,7 +136,7 @@ class WatchSeriesExtractor:
         for season in seasons:
             season_num = season['data-season']
             episode_array = []
-            for episode in seasons.find_all('li'):
+            for episode in season.find_all('li'):
                 episode_array.append({
                     "name":episode.find('a').find('span').text.strip(),
                     "id": episode.find('a')['data-id'],
