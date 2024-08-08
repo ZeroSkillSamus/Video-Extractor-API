@@ -106,8 +106,15 @@ class WatchSeriesExtractor:
             raise VidSrcError(f"Couldnt fetch {req.url}, status code: {req.status_code}...")
 
         soup = BeautifulSoup(req.content,"html.parser")
-        results = soup.find('div',class_="item-lg").find_all('div',class_="item")
-        results = self.extract_info(results)
+        results = soup.find('div',class_="item-lg")
+        if not results:
+            print("Results Not Found")
+            return {
+                "total_pages": 0,
+                "results": []
+            }
+
+        results = self.extract_info(results.find_all('div',class_="item"))
         return {
             "total_pages": 0,
             "results": results
