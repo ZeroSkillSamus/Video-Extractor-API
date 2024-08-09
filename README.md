@@ -45,5 +45,42 @@ Simple Watchseries m3u8 extractor
      },
      ]
      ```
-2. `/WATCHSERIES/Search?query`
-3. `/WATCHSERIES/ 
+2. `/WATCHSERIES/Search?query=Naruto`
+   - Needs 1 query param:
+     - query: string to search on watchseries 
+   - Example Output:
+     ```json
+        "results": [
+           {
+               "image_uri": "https://static.watchseriesx.to/8c/i/6/67/67393aae900cbeab0f4a2cda7cfabcfb@280.jpg",
+               "media_id": "/tv/naruto-1e3rj",
+               "quality": "HD",
+               "show_type": "tv",
+               "title": "Naruto"
+           }
+        ],
+        "total_pages": 0
+    ```
+    
+4. `/VIDSRC-TO/Watch?id=tales-of-the-teenage-mutant-ninja-turtles-yk28e&season=1&episode=1`
+   - Needs 3 query params:
+     - media_id: Represents the `media_id` from watchseries but only the 2nd url argument EX: `tales-of-the-teenage-mutant-ninja-turtles-yk28e`
+     - season: Specifies the season number
+       - If movie type please specify 1 (will change later to make season and episode optional)
+    - episode: Specifies the episode number
+       - If movie type please specify 1 (will change later to make season and episode optional)
+   - Subtitles will be added later but not a priority since vidsrc subtitles aren't the best
+   - Example Output:
+      - ```json
+         "m3u8_links": [
+          {
+            "is_m3u8": true,
+            "quality": "",
+            "url": ""
+          }
+         ]
+        "subtitles": []
+        ```
+     
+
+   
