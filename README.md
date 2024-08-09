@@ -7,6 +7,9 @@ Simple Watchseries m3u8 extractor
 
 
 ## Routes
+1. `/WATCHSERIES/Details?media_id=/tv/naruto-1e3rj`
+   - Requires 1 query param:
+     - media_id: Needs the whole `media_id` 
 1. `/WATCHSERIES/Trending` 
    - Returns The following JSON
    - ```json
@@ -46,7 +49,7 @@ Simple Watchseries m3u8 extractor
      ]
      ```
 2. `/WATCHSERIES/Search?query=Naruto`
-   - Needs 1 query param:
+   - Requires 1 query param:
      - query: string to search on watchseries 
    - Example Output:
      ```json
