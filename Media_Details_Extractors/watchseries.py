@@ -37,11 +37,11 @@ class WatchSeriesExtractor:
 
     @staticmethod
     def dec(inp):
-        return general_dec('8z5Ag5wgagfsOuhz', inp)
+        return general_dec('8z5Ag5wgagfsOuhz', inp) #8z5Ag5wgagfsOuhz
 
     @staticmethod
     def enc(inp):
-        return general_enc('Ex3tc7qjUz7YlWpQ', inp)
+        return general_enc('Ex3tc7qjUz7YlWpQ', inp) #Ex3tc7qjUz7YlWpQ
 
     @staticmethod
     def extract_info(array: List) -> List:
@@ -57,12 +57,15 @@ class WatchSeriesExtractor:
             quality = inner.find('b').text.strip()
             image_uri = inner.find('a',class_="poster").find('img')['data-src']
 
+            show_type = media_id.split('/')[-1].split('-')[0]
+            show_type = show_type.capitalize() if show_type == "movie" else show_type.upper()
+
              # Create a dictionary for the current match
             json_object = {
                 "title": title,
                 "image_uri": image_uri,
                 "quality": quality,
-                "show_type": media_id.split('/')[1],
+                "show_type": show_type,
                 "media_id": media_id
             }
 
@@ -251,6 +254,6 @@ class WatchSeriesExtractor:
         data_id = re.search(f'{season}-{episode}" data-id="(.*?)"', req['result']).group(1)
         return self.fetch_episode(data_id)
 
-if __name__ == '__main__':
-    vs =  WatchSeriesExtractor()
-    vs.fetch_media_details("/tv/naked-and-afraid-last-one-standing-q6kpw")
+# if __name__ == '__main__':
+#     vs =  WatchSeriesExtractor()
+#     vs.fetch_media_details("/watch/tv-naked-and-afraid-last-one-standing-q6kpw")

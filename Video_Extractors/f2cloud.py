@@ -9,15 +9,15 @@ from utils import VidSrcError, general_dec, general_enc
 class F2Cloud:
     @staticmethod
     def h_enc(inp):
-        return general_enc('BgKVSrzpH2Enosgm',inp)
+        return general_enc('PpwFmCt1QmKTWkA2',inp)
 
     @staticmethod
     def embed_enc(inp):
-        return general_enc('8Qy3mlM2kod80XIK', inp)
+        return general_enc('qbZiccm0p25HTZRX', inp)
 
     @staticmethod
     def embed_dec(inp):
-        return general_dec('9jXDYBZUcTcTZveM', inp)
+        return general_dec('nTUxesLX5dS8BOOv', inp)
 
     def stream(self,url):
         scraper = cloudscraper.create_scraper()
@@ -27,7 +27,6 @@ class F2Cloud:
         h = self.h_enc(embed_id)
 
         mediainfo_url = f"https://{url.hostname}/mediainfo/{self.embed_enc(embed_id)}?{url.query}&ads=0&h={quote(h)}"
-        print(f"New URL {mediainfo_url}")
         req = scraper.get(mediainfo_url)
 
         if req.status_code != 200:
