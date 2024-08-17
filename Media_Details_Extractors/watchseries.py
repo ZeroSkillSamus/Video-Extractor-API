@@ -9,8 +9,9 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote
 from typing import Optional, Dict, List
 
-from utils import VidSrcError, general_dec, general_enc
+from utils import VidSrcError, mapp, rc4, reverse, subst, subst_
 from Video_Extractors.f2cloud import F2Cloud
+from keys import keys
 
 def get_vidplay_subtitles(url_data: str) -> Dict:
         scraper = cloudscraper.create_scraper()
@@ -31,17 +32,26 @@ def get_vidplay_subtitles(url_data: str) -> Dict:
         return []
 
 class WatchSeriesExtractor:
+    WATCH_KEYS = keys['watchseriesx.to']
     BASE_URL = "watchseriesx.to"
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
     scraper = cloudscraper.create_scraper()
 
     @staticmethod
     def dec(inp):
-        return general_dec('8z5Ag5wgagfsOuhz', inp) #8z5Ag5wgagfsOuhz
+        c = subst_(inp)
+        c = mapp(reverse(rc4(WatchSeriesExtractor.WATCH_KEYS[8], subst_(c))), WatchSeriesExtractor.WATCH_KEYS[7], WatchSeriesExtractor.WATCH_KEYS[6])
+        c = mapp(reverse(rc4(WatchSeriesExtractor.WATCH_KEYS[5], subst_(c))), WatchSeriesExtractor.WATCH_KEYS[4], WatchSeriesExtractor.WATCH_KEYS[3])
+        c = mapp(reverse(rc4(WatchSeriesExtractor.WATCH_KEYS[2], subst_(c))), WatchSeriesExtractor.WATCH_KEYS[1], WatchSeriesExtractor.WATCH_KEYS[0])
+        return c
 
     @staticmethod
     def enc(inp):
-        return general_enc('Ex3tc7qjUz7YlWpQ', inp) #Ex3tc7qjUz7YlWpQ
+        a = subst(rc4(WatchSeriesExtractor.WATCH_KEYS[2], reverse(mapp(inp, WatchSeriesExtractor.WATCH_KEYS[0], WatchSeriesExtractor.WATCH_KEYS[1]))))
+        a = subst(rc4(WatchSeriesExtractor.WATCH_KEYS[5], reverse(mapp(a, WatchSeriesExtractor.WATCH_KEYS[3], WatchSeriesExtractor.WATCH_KEYS[4]))))
+        a = subst(rc4(WatchSeriesExtractor.WATCH_KEYS[8], reverse(mapp(a, WatchSeriesExtractor.WATCH_KEYS[6], WatchSeriesExtractor.WATCH_KEYS[7]))))
+        a = subst(a)
+        return a
 
     @staticmethod
     def extract_info(array: List) -> List:
@@ -126,7 +136,7 @@ class WatchSeriesExtractor:
     def fetch_season_episode_list(self,data_id: str) -> Dict:
         # Get Episode List
         season_episodes = {}
-
+        print(data_id)
         encoded_data_id = self.enc(data_id)
         url = f"https://{self.BASE_URL}/ajax/episode/list/{data_id}?vrf={urllib.parse.unquote(encoded_data_id)}"
         req = self.scraper.get(url)
@@ -224,8 +234,9 @@ class WatchSeriesExtractor:
 
         if req.status_code != 200:
             print(f"FAILED {url} {req.status_code}")
-
+        print(req.json()['result']['url'])
         f2cloud_url_dec = self.dec(req.json()['result']['url'])
+
         return F2Cloud().stream(f2cloud_url_dec)
 
     def get_streams(self, media_id: str, season: Optional[str], episode: Optional[str]):
@@ -244,7 +255,6 @@ class WatchSeriesExtractor:
 
         encoded_data_id = self.enc(data_id)
         url = f"https://{self.BASE_URL}/ajax/episode/list/{data_id}?vrf={urllib.parse.unquote(encoded_data_id)}"
-
         req = self.scraper.get(url)
         if req.status_code != 200:
             raise VidSrcError(f"Couldnt fetch {req.url}, status code: {req.status_code}...")
@@ -253,6 +263,7 @@ class WatchSeriesExtractor:
         data_id = re.search(f'{season}-{episode}" data-id="(.*?)"', req['result']).group(1)
         return self.fetch_episode(data_id)
 
-# if __name__ == '__main__':
-#     vs =  WatchSeriesExtractor()
-#     vs.fetch_media_details("/watch/tv-naked-and-afraid-last-one-standing-q6kpw")
+if __name__ == '__main__':
+    vs =  WatchSeriesExtractor()
+    # vs.fetch_media_details("/watch/tv-naked-and-afraid-last-one-standing-q6kpw")
+    vs.get_streams('the-big-bang-theory-jyr9n',"1","1")

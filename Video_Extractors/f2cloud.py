@@ -4,20 +4,36 @@ import json
 import cloudscraper
 
 from urllib.parse import urlparse, quote
-from utils import VidSrcError, general_dec, general_enc
+from keys import keys
+from utils import VidSrcError
+from utils import subst_, subst, rc4, reverse, mapp, general_enc
 
 class F2Cloud:
+    vid2faf_keys = keys['vid2faf.site'] # vid2faf for watchseries
+    vid2v11_keys = keys['vid2v11.site'] # vidsrc
+
+    # Plan on adding vidsrc2.to support in the future
     @staticmethod
     def h_enc(inp):
-        return general_enc('PpwFmCt1QmKTWkA2',inp)
+        return general_enc(F2Cloud.vid2faf_keys[9],inp)
 
     @staticmethod
     def embed_enc(inp):
-        return general_enc('qbZiccm0p25HTZRX', inp)
+        keys = F2Cloud.vid2faf_keys
+        a = mapp(subst(rc4(keys[0], inp)), F2Cloud.vid2faf_keys[1], F2Cloud.vid2faf_keys[2])
+        a = subst(rc4(keys[5], mapp(reverse(a), keys[3], keys[4])))
+        a = subst(rc4(keys[6], reverse(a)))
+        a = subst(reverse(mapp(a, keys[7], keys[8])))
+        return a
 
     @staticmethod
     def embed_dec(inp):
-        return general_dec('nTUxesLX5dS8BOOv', inp)
+        keys = F2Cloud.vid2faf_keys
+        a = subst_(inp)
+        a = rc4(keys[6], subst_((a := mapp(reverse(a), keys[8], keys[7]))))
+        a = mapp(rc4(keys[5], subst_(reverse(a))), keys[4], keys[3])
+        a = rc4(keys[0], subst_(mapp(reverse(a), keys[2], keys[1])))
+        return a
 
     def stream(self,url):
         scraper = cloudscraper.create_scraper()
