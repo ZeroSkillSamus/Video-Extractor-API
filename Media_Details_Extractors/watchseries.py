@@ -11,29 +11,30 @@ from typing import Optional, Dict, List
 
 from utils import VidSrcError, mapp, rc4, reverse, subst, subst_
 from Video_Extractors.f2cloud import F2Cloud
-from keys import keys
+from keys import source_keys
 
 def get_vidplay_subtitles(url_data: str) -> Dict:
-        scraper = cloudscraper.create_scraper()
-        subtitles_url = re.search(r"info=([^&]+)", url_data)
-        if not subtitles_url:
-            return []
-
-        subtitles_url_formatted = unquote(subtitles_url.group(1))
-        req = scraper.get(subtitles_url_formatted)
-
-        if req.status_code == 200:
-            json_output = [
-                {"label": subtitle.get("label"), "file": subtitle.get("file")}
-                for subtitle in req.json()
-            ]
-            return json_output
-
+    scraper = cloudscraper.create_scraper()
+    subtitles_url = re.search(r"info=([^&]+)", url_data)
+    if not subtitles_url:
         return []
 
+    subtitles_url_formatted = unquote(subtitles_url.group(1))
+    req = scraper.get(subtitles_url_formatted)
+
+    if req.status_code == 200:
+        json_output = [
+            {"label": subtitle.get("label"), "file": subtitle.get("file")}
+            for subtitle in req.json()
+        ]
+        return json_output
+
+    return []
+
 class WatchSeriesExtractor:
-    WATCH_KEYS = keys['watchseriesx.to']
+    WATCH_KEYS = source_keys['watchseriesx.to']
     BASE_URL = "watchseriesx.to"
+    source = 'vid2faf.site'
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
     scraper = cloudscraper.create_scraper()
 
@@ -219,7 +220,6 @@ class WatchSeriesExtractor:
         }
 
     def fetch_episode(self,data_id) -> List:
-        # print(f"asdasdasd {data_id}")
         url = f"https://{self.BASE_URL}/ajax/server/list/{data_id}?vrf={urllib.parse.unquote(self.enc(data_id))}"
         req = self.scraper.get(url)
         if req.status_code != 200:
@@ -237,7 +237,7 @@ class WatchSeriesExtractor:
         print(req.json()['result']['url'])
         f2cloud_url_dec = self.dec(req.json()['result']['url'])
 
-        return F2Cloud().stream(f2cloud_url_dec)
+        return F2Cloud().stream(f2cloud_url_dec,self.source)
 
     def get_streams(self, media_id: str, season: Optional[str], episode: Optional[str]):
         url = f"https://{self.BASE_URL}/tv/{media_id}/{season}-{episode}"
