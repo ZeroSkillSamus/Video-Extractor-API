@@ -199,6 +199,8 @@ class WatchSeriesExtractor:
 
         season_episodes = self.fetch_season_episode_list(data_id)
 
+        show_type = media_id.split('/')[-1].split('-')[0]
+        show_type = show_type.capitalize() if show_type == "movie" else show_type.upper()
         return {
             "title": title,
             "id": media_id,
@@ -211,7 +213,7 @@ class WatchSeriesExtractor:
             "country": "",
             "quality": quality,
             "trailer_uri": "",
-            "show_type": media_id.split('/')[1].split('-')[0],
+            "show_type": show_type,
             "episodes": season_episodes,
             "genres": genres,
             "cast": [],
