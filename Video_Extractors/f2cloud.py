@@ -10,26 +10,39 @@ from utils import subst_, subst, rc4, reverse, mapp, general_enc
 
 class F2Cloud:
     @staticmethod
-    def h_enc(inp,source):
-        return general_enc(source_keys[source][9],inp)
-
-    @staticmethod
-    def embed_enc(inp,source):
-        # keys = F2Cloud.vid2faf_keys
+    def enc(inp,source):
         keys = source_keys[source]
-        a = mapp(subst(rc4(keys[0], inp)), keys[1], keys[2])
-        a = subst(rc4(keys[5], mapp(reverse(a), keys[3], keys[4])))
-        a = subst(rc4(keys[6], reverse(a)))
-        a = subst(reverse(mapp(a, keys[7], keys[8])))
+        a = mapp(inp,keys[0],keys[1])
+        a = reverse(a)
+        a = rc4(keys[2],a)
+        a = subst(a)
+        a = reverse(a)
+        a = mapp(a,keys[3],keys[4])
+        a = rc4(keys[5],a)
+        a = subst(a)
+        a = rc4(keys[6], a)
+        a = subst(a)
+        a = reverse(a)
+        a = mapp(a, keys[7], keys[8])
+        a = subst(a)
         return a
 
     @staticmethod
-    def embed_dec(inp,source):
+    def dec(inp,source):
         keys = source_keys[source]
         a = subst_(inp)
-        a = rc4(keys[6], subst_((a := mapp(reverse(a), keys[8], keys[7]))))
-        a = mapp(rc4(keys[5], subst_(reverse(a))), keys[4], keys[3])
-        a = rc4(keys[0], subst_(mapp(reverse(a), keys[2], keys[1])))
+        a = mapp(a, keys[8], keys[7])
+        a = reverse(a)
+        a = subst_(a)
+        a = rc4(keys[6], a)
+        a = subst_(a)
+        a = rc4(keys[5], a)
+        a = mapp(a, keys[4], keys[3])
+        a = reverse(a)
+        a = subst_(a)
+        a = rc4(keys[2], a)
+        a = reverse(a)
+        a = mapp(a, keys[1], keys[0])
         return a
 
     def stream(self,url,source):
@@ -37,16 +50,14 @@ class F2Cloud:
         url = urlparse(url)
         embed_id = url.path.split('/')[2]
 
-        h = self.h_enc(embed_id,source)
-
-        mediainfo_url = f"https://{url.hostname}/mediainfo/{self.embed_enc(embed_id,source)}?{url.query}&ads=0&h={quote(h)}"
+        mediainfo_url = f"https://{url.hostname}/mediainfo/{self.enc(embed_id,source)}?{url.query}&ads=0"
         req = scraper.get(mediainfo_url)
 
         if req.status_code != 200:
             print(f"Failed! {mediainfo_url}    {req.status_code}")
 
         req = req.json()
-        playlist = json.loads(self.embed_dec(req['result'],source))
+        playlist = json.loads(self.dec(req['result'],source))
         sources = playlist.get('sources')
         json_array = []
 
