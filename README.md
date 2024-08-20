@@ -1,3 +1,4 @@
+
 # Video-Extractor-API
 Simple Watchseries m3u8 extractor 
 
@@ -5,6 +6,8 @@ Simple Watchseries m3u8 extractor
 1. pip install -r /path/to/requirements.txt
 2. python api.py
 
+## Shoutout
+Check -> https://github.com/giammirove/videogatherer 
 
 ## Routes
 1. `/WATCHSERIES/Details?media_id=/tv/naruto-1e3rj`
